@@ -1,0 +1,51 @@
+{
+    "name": "dokaudit/typo3-dokaudit",
+    "type": "typo3-cms-extension",
+    "description": "DokAudit für TYPO3: PDFs in der Dateiliste automatisch auf Barrierefreiheit (PDF/UA, WCAG, BITV) prüfen und durch die korrigierte Fassung ersetzen – Links bleiben gleich, Originale werden gesichert.",
+    "license": "GPL-2.0-or-later",
+    "homepage": "https://dokaudit.de/api-integration",
+    "keywords": [
+        "accessibility",
+        "accessibility-checker",
+        "barrierefreiheit",
+        "bitv",
+        "pdf",
+        "pdf-accessibility",
+        "pdf-ua",
+        "TYPO3",
+        "wcag"
+    ],
+    "authors": [
+        {
+            "name": "Nils Lappenbusch",
+            "email": "kontakt@dokaudit.de",
+            "homepage": "https://dokaudit.de",
+            "role": "Developer"
+        }
+    ],
+    "support": {
+        "issues": "https://github.com/nlappenbusch/typo3-dokaudit/issues",
+        "source": "https://github.com/nlappenbusch/typo3-dokaudit",
+        "docs": "https://github.com/nlappenbusch/typo3-dokaudit#readme",
+        "email": "kontakt@dokaudit.de"
+    },
+    "require": {
+        "php": "^8.1",
+        "typo3/cms-core": "^12.4 || ^13.4",
+        "typo3/cms-backend": "^12.4 || ^13.4",
+        "typo3/cms-fluid": "^12.4 || ^13.4"
+    },
+    "suggest": {
+        "typo3/cms-scheduler": "Regelmäßiger Abgleich über den Scheduler (Konsolenbefehl dokaudit:sync)"
+    },
+    "autoload": {
+        "psr-4": {
+            "DokAudit\\Typo3\\": "Classes/"
+        }
+    },
+    "extra": {
+        "typo3/cms": {
+            "extension-key": "dokaudit"
+        }
+    }
+}

@@ -1,0 +1,29 @@
+# cat=Verbindung; type=string; label=DokAudit-Adresse: Basis-URL der API (ohne /api/v1)
+apiUrl = https://dokaudit.de
+
+# cat=Verbindung; type=string; label=API-Schlüssel: Im DokAudit Hub unter Integrationen → API-Schlüssel mit Recht „write“ anlegen (dka_live_…). Bequemer im Modul Datei → DokAudit → Einstellungen (prüft den Schlüssel und zeigt die Organisation). Ohne Eintrag gilt die Umgebungsvariable DOKAUDIT_API_KEY.
+apiKey =
+
+# cat=Verarbeitung; type=options[replace=Prüfen und ersetzen,check=Nur prüfen (nichts ersetzen)]; label=Modus
+mode = replace
+
+# cat=Verarbeitung; type=string; label=Speicher: Kommagetrennte UIDs der Dateispeicher (sys_file_storage), leer = alle lokalen
+storages =
+
+# cat=Verarbeitung; type=string; label=Ordner: Nur PDFs unterhalb dieser Ordner (kommagetrennt, z. B. /user_upload/,/formulare/), leer = alle
+folders =
+
+# cat=Verarbeitung; type=string; label=Ausschließen: Ordner, die nie angefasst werden (kommagetrennt)
+excludeFolders = /_dokaudit_backup/,/_processed_/,/_temp_/
+
+# cat=Verarbeitung; type=int+; label=Mindestverbesserung: Original nur ersetzen, wenn die Punktzahl um mindestens so viel steigt
+minGain = 1
+
+# cat=Verarbeitung; type=boolean; label=Neue Uploads automatisch einreihen: Hochgeladene oder ersetzte PDFs beim nächsten Abgleich prüfen
+autoQueue = 1
+
+# cat=Verarbeitung; type=string; label=Sicherungsordner: Hier landen die Originale (im selben Speicher), Wiederherstellen jederzeit möglich
+backupFolder = /_dokaudit_backup/
+
+# cat=Verarbeitung; type=int+; label=Dateigröße: Größere PDFs (MB) überspringen
+maxSizeMb = 50

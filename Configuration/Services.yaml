@@ -1,0 +1,35 @@
+services:
+  _defaults:
+    autowire: true
+    autoconfigure: true
+    public: false
+
+  DokAudit\Typo3\:
+    resource: '../Classes/*'
+
+  DokAudit\Typo3\Controller\ModuleController:
+    public: true
+    tags: ['backend.controller']
+
+  DokAudit\Typo3\Command\SyncCommand:
+    tags:
+      - name: console.command
+        command: 'dokaudit:sync'
+        description: 'PDFs an DokAudit übergeben und korrigierte Fassungen übernehmen'
+        schedulable: true
+
+  DokAudit\Typo3\Command\RestoreCommand:
+    tags:
+      - name: console.command
+        command: 'dokaudit:restore'
+        description: 'Original einer ersetzten Datei wiederherstellen'
+        schedulable: false
+
+  DokAudit\Typo3\EventListener\QueueUploadedPdf:
+    tags:
+      - name: event.listener
+        identifier: 'dokaudit-queue-added'
+        event: TYPO3\CMS\Core\Resource\Event\AfterFileAddedEvent
+      - name: event.listener
+        identifier: 'dokaudit-queue-replaced'
+        event: TYPO3\CMS\Core\Resource\Event\AfterFileReplacedEvent

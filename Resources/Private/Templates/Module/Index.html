@@ -1,0 +1,192 @@
+<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers" data-namespace-typo3-fluid="true">
+<f:layout name="Module" />
+<f:section name="Content">
+    <style>
+        .dka-head { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:1rem; padding:1.25rem 1.5rem; margin-bottom:1.25rem;
+            border-radius:14px; border:1px solid var(--typo3-component-border-color, #e2e8f0); background:linear-gradient(120deg,#eff6ff,#f8fafc 60%,#ecfdf5); color:#0f172a; }
+        .dka-brand { display:flex; align-items:center; gap:.85rem; }
+        .dka-brand img { width:44px; height:44px; }
+        .dka-brand strong { display:block; font-size:1.4rem; line-height:1.1; color:#172554; }
+        .dka-brand strong span { color:#1d4ed8; }
+        .dka-brand small, .dka-konto { color:#475569; }
+        .dka-konto { text-align:right; font-size:.9rem; }
+        .dka-konto b { color:#172554; }
+        .dka-siegel { display:inline-block; margin:.1rem .25rem .1rem 0; padding:.2rem .55rem; border-radius:999px; font-size:.74rem; font-weight:700; color:#fff; white-space:nowrap; }
+        .dka-siegel::before { content:"✓ "; }
+        .dka-voll { color:#047857; }
+    </style>
+
+    <div class="dka-head">
+        <div class="dka-brand">
+            <img src="{f:uri.resource(path: 'EXT:dokaudit/Resources/Public/Icons/DokAudit.svg')}" alt="">
+            <div>
+                <strong>Dok<span>Audit</span></strong>
+                <small>Barrierefreie PDFs · PDF/UA-1 · WCAG 2.2 · BITV 2.0 · Modus:
+                    <f:if condition="{settings.mode} == 'replace'"><f:then>prüfen und ersetzen</f:then><f:else>nur prüfen</f:else></f:if></small>
+            </div>
+        </div>
+        <div class="dka-konto">
+            <f:if condition="{configured}">
+                <f:then>
+                    <f:if condition="{accountError}">
+                        <f:then><span class="text-danger">Keine Verbindung zu {apiUrl}: {accountError}</span></f:then>
+                        <f:else if="{account}">Organisation <b>{account.organization.name}</b><br>Guthaben <b>{account.credits_available} Credits</b></f:else>
+                    </f:if>
+                </f:then>
+                <f:else><span class="text-danger">Noch kein API-Schlüssel hinterlegt</span><br>
+                    <small>Einstellungen → Erweiterungskonfiguration → dokaudit</small></f:else>
+            </f:if>
+            <div class="mt-2 d-flex flex-wrap gap-2 justify-content-end">
+                <form method="post" action="{actions.sync}" class="d-inline">
+                    <button type="submit" class="btn btn-sm btn-primary" {f:if(condition: configured, else: 'disabled')}>Jetzt abgleichen</button>
+                </form>
+                <a class="btn btn-sm btn-default" href="{hubUrl}" target="_blank" rel="noopener">Zum DokAudit Hub ↗</a>
+            </div>
+        </div>
+    </div>
+
+    <f:if condition="{configured}">
+        <f:else>
+            <div class="alert alert-primary d-flex flex-wrap align-items-center justify-content-between gap-3">
+                <div><strong>Alle PDFs dieser Website barrierefrei – automatisch.</strong><br>
+                    Konto anlegen, API-Schlüssel unten eintragen, fertig: DokAudit prüft jedes PDF nach PDF/UA-1, WCAG 2.2 und BITV 2.0
+                    und ersetzt es durch die reparierte Fassung. Zum Start gibt es Guthaben für 100 Seiten.</div>
+                <a class="btn btn-primary" href="{apiUrl}/auth" target="_blank" rel="noopener">Kostenlos testen ↗</a>
+            </div>
+        </f:else>
+    </f:if>
+    <f:if condition="{guthabenKnapp}">
+        <div class="alert alert-warning">Nur noch <strong>{account.credits_available} Credits</strong> (reicht für etwa {seitenRest} Seiten).
+            Neue PDFs warten sonst, bis wieder Guthaben da ist. <a href="{apiUrl}/credits" target="_blank" rel="noopener">Guthaben aufladen ↗</a></div>
+    </f:if>
+    <f:if condition="{configured} && {offen} > 0">
+        <div class="alert alert-info d-flex flex-wrap align-items-center justify-content-between gap-3">
+            <div><strong>{offen} PDF(s) in der Dateiliste sind noch nicht geprüft.</strong><br>
+                Ein Abgleich erfasst sie und macht sie der Reihe nach barrierefrei – Adressen und Links bleiben gleich.</div>
+            <form method="post" action="{actions.sync}"><button type="submit" class="btn btn-primary">Jetzt alle prüfen</button></form>
+        </div>
+    </f:if>
+
+    <f:if condition="{update}">
+        <div class="alert alert-info d-flex flex-wrap align-items-center gap-2">
+            <strong>Update verfügbar: DokAudit {update.latest}</strong> (installiert: {update.installed}).
+            <span>Composer: <code>composer update {update.composer}</code></span>
+            <f:if condition="{update.download}"><a class="btn btn-sm btn-default" href="{update.download}">ZIP herunterladen</a></f:if>
+            <f:if condition="{update.changelog}"><a class="btn btn-sm btn-default" href="{update.changelog}" target="_blank" rel="noopener">Was ist neu? ↗</a></f:if>
+        </div>
+    </f:if>
+
+    <details class="card mb-4" {f:if(condition: configured, else: 'open')}>
+        <summary class="card-header fw-bold" style="cursor:pointer">Einstellungen: Verbindung zu DokAudit</summary>
+        <div class="card-body">
+            <form method="post" action="{actions.settings}">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label" for="dka-url">API-Adresse</label>
+                        <input class="form-control" id="dka-url" name="apiUrl" type="url" required value="{cfg.apiUrl}">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="dka-key"><f:if condition="{cfg.keyMasked}"><f:then>Neuer API-Schlüssel</f:then><f:else>API-Schlüssel</f:else></f:if></label>
+                        <input class="form-control" id="dka-key" name="apiKey" type="password" autocomplete="off" placeholder="dka_live_…" aria-describedby="dka-key-hilfe">
+                        <div class="form-text" id="dka-key-hilfe">
+                            <f:if condition="{cfg.keyMasked}">
+                                <f:then>Aktiv: <code>{cfg.keyMasked}</code><f:if condition="{cfg.keySource} == 'env'"> (aus Umgebungsvariable DOKAUDIT_API_KEY)</f:if>. Nur ausfüllen, um ihn zu ersetzen –
+                                    der neue Schlüssel wird beim Speichern geprüft und die Organisation angezeigt.</f:then>
+                                <f:else>Im <a href="{hubUrl}/integrationen" target="_blank" rel="noopener">DokAudit Hub → Integrationen → API-Schlüssel</a>
+                                    mit dem Recht „hochladen + verarbeiten“ anlegen.</f:else>
+                            </f:if>
+                        </div>
+                        <f:if condition="{cfg.keySource} == 'config'">
+                            <div class="form-check mt-1"><input class="form-check-input" type="checkbox" name="removeKey" value="1" id="dka-rm">
+                                <label class="form-check-label" for="dka-rm">Gespeicherten Schlüssel entfernen</label></div>
+                        </f:if>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="dka-mode">Modus</label>
+                        <select class="form-select" id="dka-mode" name="mode">
+                            <option value="replace" {f:if(condition: cfg.isReplace, then: 'selected')}>Prüfen und durch die barrierefreie Fassung ersetzen</option>
+                            <option value="check" {f:if(condition: cfg.isReplace, else: 'selected')}>Nur prüfen, nichts ersetzen</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6 d-flex align-items-end">
+                        <div class="form-check"><input class="form-check-input" type="checkbox" name="autoQueue" value="1" id="dka-auto" {f:if(condition: cfg.autoQueue, then: 'checked')}>
+                            <label class="form-check-label" for="dka-auto">Neu hochgeladene oder ersetzte PDFs automatisch einreihen</label></div>
+                    </div>
+                </div>
+                <div class="mt-3 d-flex flex-wrap gap-2 align-items-center">
+                    <button type="submit" class="btn btn-primary">Speichern und Schlüssel prüfen</button>
+                    <span class="text-body-secondary small">Weitere Optionen (Ordner, Mindestverbesserung, Sicherungsordner): Admin-Werkzeuge → Einstellungen → Extension Configuration → dokaudit.</span>
+                </div>
+            </form>
+        </div>
+    </details>
+
+    <div class="row g-3 mb-4">
+        <div class="col-sm-6 col-lg-3"><div class="card card-body"><div class="text-body-secondary small">Barrierefrei ersetzt</div><div class="fs-3 fw-bold text-success"><f:if condition="{stats.replaced}"><f:then>{stats.replaced}</f:then><f:else>0</f:else></f:if></div></div></div>
+        <div class="col-sm-6 col-lg-3"><div class="card card-body"><div class="text-body-secondary small">Ø Punktzahl (ersetzte)</div><div class="fs-3 fw-bold">
+            <f:if condition="{stats.avg_after}"><f:then>{stats.avg_before} → <span class="text-success">{stats.avg_after}</span></f:then><f:else>–</f:else></f:if></div></div></div>
+        <div class="col-sm-6 col-lg-3"><div class="card card-body"><div class="text-body-secondary small">In Arbeit / neu</div><div class="fs-3 fw-bold">{f:if(condition: stats.submitted, then: stats.submitted, else: 0)} / {f:if(condition: stats.new, then: stats.new, else: 0)}</div></div></div>
+        <div class="col-sm-6 col-lg-3"><div class="card card-body"><div class="text-body-secondary small">Erfasst gesamt</div><div class="fs-3 fw-bold">{stats.total}</div></div></div>
+    </div>
+
+    <div class="table-fit">
+        <table class="table table-striped table-hover">
+            <thead>
+            <tr><th>Datei</th><th>Status</th><th class="text-end">Punkte</th><th>Siegel</th><th></th></tr>
+            </thead>
+            <tbody>
+            <f:for each="{rows}" as="r">
+                <tr>
+                    <td><strong>{r.name}</strong><br><span class="text-body-secondary small">{r.folder}<f:if condition="{r.pages}"> · {r.pages} Seite(n)</f:if></span>
+                        <f:if condition="{r.message}"><br><span class="small">{r.message}</span></f:if></td>
+                    <td>
+                        <f:switch expression="{r.status}">
+                            <f:case value="replaced"><span class="badge text-bg-success">ersetzt</span></f:case>
+                            <f:case value="checked"><span class="badge text-bg-info">geprüft</span></f:case>
+                            <f:case value="submitted"><span class="badge text-bg-primary">in Prüfung</span></f:case>
+                            <f:case value="new"><span class="badge text-bg-secondary">wartet</span></f:case>
+                            <f:case value="waiting"><span class="badge text-bg-warning">wartet auf Guthaben</span></f:case>
+                            <f:case value="restored"><span class="badge text-bg-light">Original</span></f:case>
+                            <f:case value="skipped"><span class="badge text-bg-light">übersprungen</span></f:case>
+                            <f:defaultCase><span class="badge text-bg-danger">{r.status}</span></f:defaultCase>
+                        </f:switch>
+                    </td>
+                    <td class="text-end text-nowrap"><span class="text-body-secondary">{r.vorher}</span> →
+                        <strong class="{f:if(condition: r.voll, then: 'dka-voll')}">{r.nachher}</strong></td>
+                    <td><f:for each="{r.siegel}" as="s"><span class="dka-siegel" style="background:{s.farbe}">{s.label}</span></f:for></td>
+                    <td class="text-end text-nowrap">
+                        <f:if condition="{r.hub}">
+                            <a class="btn btn-sm btn-default" href="{r.hub}" target="_blank" rel="noopener">Prüfbericht im Hub ↗</a>
+                        </f:if>
+                        <f:if condition="{r.status} == 'replaced'">
+                            <form method="post" action="{actions.restore}" class="d-inline">
+                                <input type="hidden" name="file" value="{r.file}">
+                                <button type="submit" class="btn btn-sm btn-default">Original wiederherstellen</button>
+                            </form>
+                        </f:if>
+                        <f:if condition="{r.status} == 'error' || {r.status} == 'restored' || {r.status} == 'checked'">
+                            <form method="post" action="{actions.requeue}" class="d-inline">
+                                <input type="hidden" name="file" value="{r.file}">
+                                <button type="submit" class="btn btn-sm btn-default">Erneut prüfen</button>
+                            </form>
+                        </f:if>
+                    </td>
+                </tr>
+            </f:for>
+            <f:if condition="{rows -> f:count()} == 0">
+                <tr><td colspan="5" class="text-center text-body-secondary py-4">Noch keine PDFs erfasst — „Jetzt abgleichen“ startet die Suche.</td></tr>
+            </f:if>
+            </tbody>
+        </table>
+    </div>
+    <div class="d-flex flex-wrap gap-3 align-items-center p-3 mb-3 rounded border border-secondary-subtle small" style="border-style:dashed!important">
+        <strong>Mehr mit DokAudit</strong>
+        <a href="{hubUrl}/website-scan" target="_blank" rel="noopener">Website-Scan: alle PDFs einer Domain finden und bewerten ↗</a>
+        <a href="{hubUrl}/website-scan" target="_blank" rel="noopener">Überwachung: monatlich neue Dokumente prüfen ↗</a>
+        <a href="{hubUrl}" target="_blank" rel="noopener">Word-Dateien direkt als barrierefreies PDF ↗</a>
+    </div>
+    <p class="small text-body-secondary">Ersetzte Dateien behalten ihre UID, Links und Inhaltselemente bleiben gültig; Originale liegen in <code>{settings.backupFolder}</code>.
+        Siegel wie im DokAudit Hub: PDF/UA-1 mit veraPDF geprüft, WCAG 2.2 (maschinell prüfbare Kriterien), PDF/A-2a für die Archivierung.
+        <f:if condition="{version}">· EXT:dokaudit {version}</f:if></p>
+</f:section>
+</html>
